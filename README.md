@@ -1,8 +1,7 @@
-# Treinamento-DevOps-Minsait-Maio
+# Treinamento DevOps Minsait Maio 2025
 Repositório Treinamento - Maio
 
-Demonstrando integração com o Azure boards
-
+Demonstrando integração com o Azure boards - 1
 
 Demonstrando integração com o Azure Boards - 2
 
