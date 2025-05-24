@@ -1,0 +1,6 @@
+@MinimalApiPokemon_HostAddress = http://localhost:5123
+
+GET {{MinimalApiPokemon_HostAddress}}
+Accept: application/json
+
+###
