@@ -7,28 +7,48 @@ trigger:
 - main
 
 pool:
-  name: Default
+  name: Default  # Seu pool com o agente auto-hospedado
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  outputFolder: '$(Build.ArtifactStagingDirectory)/publicacao'
 
 steps:
-- task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
+# Etapa opcional: conferir versão do .NET
+- task: UseDotNet@2
   inputs:
-    restoreSolution: '$(solution)'
+    packageType: 'sdk'
+    version: '8.x'
+    installationPath: $(Agent.ToolsDirectory)/dotnet
 
-- task: VSBuild@1
+# Restaurar dependências
+- task: DotNetCoreCLI@2
+  displayName: 'Restaurar pacotes NuGet'
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: 'restore'
+    projects: '**/*.csproj'
 
-- task: VSTest@2
+# Build do projeto
+- task: DotNetCoreCLI@2
+  displayName: 'Build do projeto'
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+# Publicação para pasta local
+- task: DotNetCoreCLI@2
+  displayName: 'Publicar aplicação'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(outputFolder)'
+    zipAfterPublish: true
+
+# Publicar como artefato do pipeline
+- task: PublishBuildArtifacts@1
+  displayName: 'Publicar artefato'
+  inputs:
+    PathtoPublish: '$(outputFolder)'
+    ArtifactName: 'Poke-minimal-api'
